@@ -1,0 +1,4 @@
+297b943d577509f3438bbabf1b74d5d5e5d4785b314ecfdc345964e60137cd80  main.mariadb.sql
+58198becf8eab7528cf99e5eee45384db9b6025c0cdbe40dbb1f126b52aa3faf  main.mysql.sql
+b9acc3e996ed03657ab1b1acda6d63b60c387123d7a34169be4c743edd838f95  wiki.mariadb.sql
+d11effad37fca4f6ad9e66eb6e75eac6c230f6bde5e5034fdf1556b04601102d  wiki.mysql.sql

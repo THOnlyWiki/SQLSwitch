@@ -1,0 +1,13 @@
+.gradle/
+build/
+.idea/
+*.iml
+*.log
+*.tmp
+.DS_Store
+
+# 本地实验数据 / 可能包含私有内容的生成物，不提交
+/wiki.db
+/main.sql
+/out/*.sql
+/workspace/

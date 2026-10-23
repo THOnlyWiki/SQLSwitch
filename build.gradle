@@ -1,0 +1,86 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'cc.thonly'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+def sqliteVersion = '3.53.2.1'
+def mariadbVersion = '3.5.10'
+def mysqlVersion = '9.7.0'
+def slf4jVersion = '2.0.17'
+def junitVersion = '5.11.4'
+
+dependencies {
+    implementation "org.xerial:sqlite-jdbc:${sqliteVersion}"
+    implementation "org.mariadb.jdbc:mariadb-java-client:${mariadbVersion}"
+    implementation "com.mysql:mysql-connector-j:${mysqlVersion}"
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    runtimeOnly "org.slf4j:slf4j-simple:${slf4jVersion}"
+
+    testImplementation platform("org.junit:junit-bom:${junitVersion}")
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+application {
+    mainClass = 'cc.thonly.sqlswitch.Main'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 17
+    options.compilerArgs += ['-Xlint:all', '-Xlint:-serial']
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+    systemProperty 'file.encoding', 'UTF-8'
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        exceptionFormat = 'full'
+    }
+}
+
+tasks.named('run', JavaExec) {
+    standardInput = System.in
+    systemProperty 'file.encoding', 'UTF-8'
+}
+
+// A self-contained executable jar: java -jar build/libs/SQLSwitch-1.0.0-all.jar ...
+tasks.register('fatJar', Jar) {
+    group = 'build'
+    description = 'Builds a self-contained executable jar (all runtime dependencies included).'
+    archiveClassifier = 'all'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes(
+                'Main-Class': application.mainClass.get(),
+                'Implementation-Title': 'SQLSwitch',
+                'Implementation-Version': project.version,
+                'Enable-Native-Access': 'ALL-UNNAMED'
+        )
+    }
+    from sourceSets.main.output
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+    exclude 'META-INF/versions/*/module-info.class'
+    exclude 'module-info.class'
+}
+
+tasks.named('assemble') {
+    dependsOn tasks.named('fatJar')
+}
